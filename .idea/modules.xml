@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/simple-yrpc.iml" filepath="$PROJECT_DIR$/simple-yrpc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yrpc-framework/yrpc-common/yrpc-common.iml" filepath="$PROJECT_DIR$/yrpc-framework/yrpc-common/yrpc-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yrpc-framework/yrpc-core/yrpc-core.iml" filepath="$PROJECT_DIR$/yrpc-framework/yrpc-core/yrpc-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yrpc-framework/yrpc-framework.iml" filepath="$PROJECT_DIR$/yrpc-framework/yrpc-framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yrpc-manager/yrpc-manager.iml" filepath="$PROJECT_DIR$/yrpc-manager/yrpc-manager.iml" />
     </modules>
   </component>
 </project>
