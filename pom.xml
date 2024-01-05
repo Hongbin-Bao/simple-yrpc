@@ -10,10 +10,18 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>yrpc-demo</module>
-        <module>yrpc-demo/yrpc-client-demo</module>
+        <module>yrpc-demo/yrpc-comsumer-demo</module>
         <module>yrpc-demo/yrpc-api</module>
         <module>yrpc-demo/yrpc-provider-demo</module>
-        <module>yrpc-demo</module>
+
+        <module>yrpc-framework</module>
+        <module>yrpc-framework/yrpc-common</module>
+        <module>yrpc-framework/yrpc-core</module>
+
+        <module>yrpc-manager</module>
+
+
+
     </modules>
 
     <properties>
