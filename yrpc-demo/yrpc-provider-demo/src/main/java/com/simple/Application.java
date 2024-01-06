@@ -22,7 +22,7 @@ public class Application {
         //   （2） 发布服务
 
         YrpcBootstrap.getInstance().application("first-yrpc-provider")
-                .registry(new RegistryConfig("zookeeper:127.0.0.1:21"))
+                .registry(new RegistryConfig("zookeeper:127.0.0.1:2181"))
                 .protocol(new ProtocolConfig("jdk"))
                         .publish(service).start();
     }
