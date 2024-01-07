@@ -79,7 +79,7 @@ public class ZookeeperUtils {
     /**
      * 判断节点是否存在
      * @param zk zk实例
-     * @param node  节点路劲
+     * @param node  节点路径
      * @param watcher watcher
      * @return ture 存在 | false 不存在
      */

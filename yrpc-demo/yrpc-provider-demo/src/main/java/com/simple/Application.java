@@ -2,11 +2,13 @@ package com.simple;
 
 import com.simple.impl.HelloYrpc;
 import com.simple.impl.HelloYrpcImpl;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Hongbin BAO
  * @Date 2024/1/5 00:36
  */
+
 public class Application {
 
     public static void main(String[] args) {
