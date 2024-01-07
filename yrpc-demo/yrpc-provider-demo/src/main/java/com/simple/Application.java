@@ -1,8 +1,8 @@
 package com.simple;
 
+import com.simple.discovery.RegistryConfig;
 import com.simple.impl.HelloYrpc;
 import com.simple.impl.HelloYrpcImpl;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Hongbin BAO
@@ -24,7 +24,7 @@ public class Application {
         //   （2） 发布服务
 
         YrpcBootstrap.getInstance().application("first-yrpc-provider")
-                .registry(new RegistryConfig("zookeeper:127.0.0.1:2181"))
+                .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
                 .protocol(new ProtocolConfig("jdk"))
                         .publish(service).start();
     }

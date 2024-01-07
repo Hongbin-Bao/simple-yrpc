@@ -1,17 +1,10 @@
 package com.simple;
 
-import com.simple.exceptions.ZookeeperException;
-import com.simple.utils.NetUtils;
-import com.simple.utils.ZookeeperUtils;
-import com.simple.utils.zookeeper.ZookeeperNode;
+import com.simple.discovery.Registry;
+import com.simple.discovery.RegistryConfig;
+import com.simple.discovery.impl.ZookeeperRegistry;
 import lombok.extern.slf4j.Slf4j;
-import main.java.com.simple.Constant;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooKeeper;
 
-import java.lang.module.ResolvedModule;
-import java.lang.reflect.Proxy;
-import java.rmi.registry.Registry;
 import java.util.List;
 
 /**
@@ -35,8 +28,9 @@ public class YrpcBootstrap {
 
     private int port = 8088;
 
-    //  维护一个zookeeper实例
-    private ZooKeeper zooKeeper;
+
+    // 注册中心
+    private Registry registry ;
 
 
     public YrpcBootstrap() {
@@ -69,9 +63,10 @@ public class YrpcBootstrap {
         // 这里维护一个zookeeper实例 但是如果这样写就会将zookeeper和当前工程耦合
         // 我们其实是更希望以后可以扩展更多种不同的实现
 
-        zooKeeper = ZookeeperUtils.createZookeeper();
-        this.registryConfig = registryConfig;
+        // 尝试使用registryConfig 获取一个注册中心  有点工厂设计模式的例子
+        this.registry = registryConfig.getRegistry();
         return this;
+
     }
 //
 //    public YrpcBootstrap registry(Registry registry){
@@ -101,29 +96,10 @@ public class YrpcBootstrap {
      */
     public YrpcBootstrap publish(ServiceConfig<?> service) {
 
+        //  我们抽象了注册中心的概念 使用注册中心的一个实现完成注册
+        // 有人会想 此时此刻 难道强耦合了吗？
+        registry.register(service);
 
-        //  服务名称的节点
-        String parentNode = Constant.BASE_PROVIDERS_PATH + "/" + service.getInterface().getName();
-        //  这个节点应该是一个持久节点
-        if (!ZookeeperUtils.exists(zooKeeper, parentNode, null)) {
-            ZookeeperNode zookeeperNode = new ZookeeperNode(parentNode, null);
-            ZookeeperUtils.createNode(zooKeeper, zookeeperNode, null, CreateMode.PERSISTENT);
-        }
-
-
-        // 创建本机的临时节点 ip port 服务提供方的端口一般自己设定 我们还需要一个获取ip的方法
-        // ip 我们通常是需要一个局域网ip 不是127。0。0。1 也不是ipv6
-        // 192.168.12.121
-        String node = parentNode + "/" + NetUtils.getIp() + ":" + port;
-
-        if (!ZookeeperUtils.exists(zooKeeper, node, null)) {
-            ZookeeperNode zookeeperNode = new ZookeeperNode(node, null);
-            ZookeeperUtils.createNode(zooKeeper, zookeeperNode, null, CreateMode.EPHEMERAL);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("服务{}已经被注册", service.getInterface().getName());
-        }
         return this;
     }
 
@@ -133,8 +109,10 @@ public class YrpcBootstrap {
      * @param services 封装的需要发布的服务集合
      * @return
      */
-    public YrpcBootstrap publish(List<?> services) {
-
+    public YrpcBootstrap publish(List<ServiceConfig<?>> services) {
+        for (ServiceConfig<?> service : services) {
+            this.publish(service);
+        }
         return this;
     }
 

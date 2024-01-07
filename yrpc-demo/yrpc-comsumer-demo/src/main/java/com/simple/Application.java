@@ -1,8 +1,7 @@
 package com.simple;
 
+import com.simple.discovery.RegistryConfig;
 import com.simple.impl.HelloYrpc;
-
-import java.rmi.registry.Registry;
 
 /**
  * @author Hongbin BAO
