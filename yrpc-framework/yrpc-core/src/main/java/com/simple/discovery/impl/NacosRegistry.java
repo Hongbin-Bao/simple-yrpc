@@ -58,6 +58,11 @@ public class NacosRegistry extends AbstractRegistry {
     }
 
     @Override
+    public InetSocketAddress lookup(String name) {
+        return null;
+    }
+
+    @Override
     public List<InetSocketAddress> lookup(String name, String group) {
         return null;
     }

@@ -5,7 +5,10 @@ import com.simple.discovery.RegistryConfig;
 import com.simple.discovery.impl.ZookeeperRegistry;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Hongbin BAO
@@ -31,6 +34,9 @@ public class YrpcBootstrap {
 
     // 注册中心
     private Registry registry ;
+
+    // 维护已经发布且暴露的服务列表 key 是interface 全限定名 value-》 ServiceConfig
+    private static final Map<String,ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
 
 
     public YrpcBootstrap() {
@@ -99,7 +105,12 @@ public class YrpcBootstrap {
         //  我们抽象了注册中心的概念 使用注册中心的一个实现完成注册
         // 有人会想 此时此刻 难道强耦合了吗？
         registry.register(service);
+        // 1。 当服务调用方 通过接口 方法名 具体的方法参数列表发起调用 提供方怎么知道使用哪一个实现
+        //  1。1 new 一个   // spring beanFactory.getBean(Class)  尝试自己维护映射关系
 
+        SERVERS_LIST.put(service.getInterface().getName(),service);
+
+        //
         return this;
     }
 
@@ -121,7 +132,7 @@ public class YrpcBootstrap {
      */
     public void start() {
         try {
-            Thread.sleep(10000);
+            Thread.sleep(100000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -135,6 +146,8 @@ public class YrpcBootstrap {
         // 在这个方法里我们是否可以拿到相关的配置项 注册中心
 
         // 配置reference 将来调用get 方法时 方便生成代理对象
+        // 1. reference 需要一个注册中心
+        reference.setRegistry(registry);
 
         return this;
 

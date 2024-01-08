@@ -9,7 +9,7 @@ import com.simple.impl.HelloYrpcImpl;
  * @Date 2024/1/5 00:36
  */
 
-public class Application {
+public class ProviderApplication {
 
     public static void main(String[] args) {
         // 服务提供方，需要注册服务，启动服务

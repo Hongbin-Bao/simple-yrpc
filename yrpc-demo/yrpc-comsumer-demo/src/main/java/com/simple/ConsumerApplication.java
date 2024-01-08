@@ -7,7 +7,7 @@ import com.simple.impl.HelloYrpc;
  * @author Hongbin BAO
  * @Date 2024/1/5 00:48
  */
-public class Application {
+public class ConsumerApplication {
     public static void main(String[] args) {
 
         // 想尽一切办法获取代理对象 使用referenceconfig 进行封装
@@ -22,7 +22,7 @@ public class Application {
         // 4. 发送请求 携带一些信息 接口名 参数
         YrpcBootstrap.getInstance()
                 .application("first-yrpc-consumer")
-                .registry(new RegistryConfig("zookeeper//127.0.0.1:2181"))
+                .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
                 .reference(reference);
 
 
