@@ -2,11 +2,13 @@ package com.simple;
 
 import com.simple.discovery.RegistryConfig;
 import com.simple.impl.HelloYrpc;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Hongbin BAO
  * @Date 2024/1/5 00:48
  */
+@Slf4j
 public class ConsumerApplication {
     public static void main(String[] args) {
 
@@ -29,6 +31,7 @@ public class ConsumerApplication {
         // 获取一个代理对象
 
         HelloYrpc helloYrpc = reference.get();
-        helloYrpc.sayHi("你好");
+        String sayHi = helloYrpc.sayHi("你好");
+        log.info("say--hi-->{}",sayHi);
     }
 }

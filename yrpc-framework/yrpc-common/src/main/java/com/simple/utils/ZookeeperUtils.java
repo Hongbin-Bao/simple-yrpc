@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ZookeeperUtils {
 
+
     /**
      * 使用默认配置创建zookeeper实例
      * @return zookeeper实例
@@ -36,14 +37,14 @@ public class ZookeeperUtils {
             final ZooKeeper zooKeeper = new ZooKeeper(connectString, timeout, event -> {
                 // 只有连接成功才放行
                 if (event.getState() == Watcher.Event.KeeperState.SyncConnected) {
-                    log.debug("客户端已经连接成功。");
+                    System.out.println("客户端已经连接成功。");
                     countDownLatch.countDown();
                 }
             });
 
             countDownLatch.await();
             return zooKeeper;
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException  | InterruptedException e) {
             log.error("创建zookeeper实例时发生异常：",e);
             throw new ZookeeperException();
         }
@@ -57,19 +58,16 @@ public class ZookeeperUtils {
      * @param createMode 节点的类型
      * @return true: 成功创建  false: 已经存在  异常：抛出
      */
-    public static Boolean createNode(ZooKeeper zooKeeper, ZookeeperNode node, Watcher watcher, CreateMode createMode){
+    public static Boolean createNode(ZooKeeper zooKeeper,ZookeeperNode node,Watcher watcher,CreateMode createMode){
+
+
         try {
-            if (zooKeeper.exists(node.getNodePath(), watcher) == null) {
+
                 String result = zooKeeper.create(node.getNodePath(), node.getData(),
                         ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
                 log.info("节点【{}】，成功创建。",result);
                 return true;
-            } else {
-                if(log.isDebugEnabled()){
-                    log.info("节点【{}】已经存在，无需创建。",node.getNodePath());
-                }
-                return false;
-            }
+
         } catch (KeeperException| InterruptedException e) {
             log.error("创建基础目录时发生异常：",e);
             throw new ZookeeperException();
@@ -79,7 +77,7 @@ public class ZookeeperUtils {
     /**
      * 判断节点是否存在
      * @param zk zk实例
-     * @param node  节点路径
+     * @param node  节点路劲
      * @param watcher watcher
      * @return ture 存在 | false 不存在
      */
@@ -111,7 +109,7 @@ public class ZookeeperUtils {
      * @param serviceNode 服务节点
      * @return 子元素列表
      */
-    public static List<String> getChildren(ZooKeeper zooKeeper, String serviceNode, Watcher watcher) {
+    public static List<String> getChildren(ZooKeeper zooKeeper, String serviceNode,Watcher watcher) {
         try {
             return zooKeeper.getChildren(serviceNode, watcher);
         } catch (KeeperException | InterruptedException e) {

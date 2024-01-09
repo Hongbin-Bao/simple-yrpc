@@ -12,6 +12,7 @@ import main.java.com.simple.Constant;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,8 @@ public class ZookeeperRegistry extends AbstractRegistry {
         //return this;
     }
 
+
+    
     @Override
     public InetSocketAddress lookup(String serviceName) {
         // 1。 找到服务对应的节点
@@ -86,6 +89,7 @@ public class ZookeeperRegistry extends AbstractRegistry {
 
         // todo 问题  我们需要每次调用相关方法的时候都需要去注册中心拉取相关服务列表吗？ 本地缓存+watcher
         //      我们如何合理的选择一个可用的服务 而不是只获取第一个?       负载均衡策略
+        //InetAddress address = inetSocketAddresses.get(0).getAddress();
         return inetSocketAddresses.get(0);
 
     }

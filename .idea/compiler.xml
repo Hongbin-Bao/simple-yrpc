@@ -8,10 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="yrpc-core" />
+        <module name="yrpc-manager" />
         <module name="yrpc-api" />
         <module name="yrpc-common" />
         <module name="yrpc-comsumer-demo" />
-        <module name="yrpc-manager" />
         <module name="yrpc-provider-demo" />
       </profile>
     </annotationProcessing>
