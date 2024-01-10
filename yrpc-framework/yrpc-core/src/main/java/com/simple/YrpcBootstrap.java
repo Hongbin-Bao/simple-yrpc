@@ -45,7 +45,7 @@ public class YrpcBootstrap {
     public final static Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
 
     // 维护已经发布且暴露的服务列表 key-> interface的全限定名  value -> ServiceConfig
-    public final static Map<String,ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
+    private final static Map<String,ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
 
     // 定义全局的对外挂起的 completableFuture
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>(128);
@@ -150,10 +150,16 @@ public class YrpcBootstrap {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             // 是核心，我们需要添加很多入站和出站的handler
-                            socketChannel.pipeline().addLast(new LoggingHandler())
-                                    .addLast(new YrpcMessageDecoder())
-                                    // 根据请求进行方法调用
-                                    .addLast(new MethodCallHandler());
+                            socketChannel.pipeline().addLast(new SimpleChannelInboundHandler<>() {
+                                @Override
+                                protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
+                                    ByteBuf byteBuf = (ByteBuf) msg;
+                                    log.info("byteBuf-->{}", byteBuf.toString(Charset.defaultCharset()));
+
+                                    // 可以就此不管了，也可以写回去
+                                    channelHandlerContext.channel().writeAndFlush(Unpooled.copiedBuffer("yrpc--hello".getBytes()));
+                                }
+                            });
                         }
                     });
 
