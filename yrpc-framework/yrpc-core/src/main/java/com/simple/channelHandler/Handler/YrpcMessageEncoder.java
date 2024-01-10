@@ -42,7 +42,7 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
         byteBuf.writeByte(MessageFormatConstant.VERSION);
         // 2个字节的头部的长度
         byteBuf.writeShort(MessageFormatConstant.HEADER_LENGTH);
-        // 总长度不清楚，不知道body的长度 writeIndex(写指针) 2
+        // 总长度不清楚，不知道body的长度 writeIndex(写指针)
         byteBuf.writerIndex(byteBuf.writerIndex() + MessageFormatConstant.FULL_FIELD_LENGTH);
         // 3个类型
         byteBuf.writeByte(yrpcRequest.getRequestType());
@@ -50,9 +50,6 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
         byteBuf.writeByte(yrpcRequest.getCompressType());
         // 8字节的请求id
         byteBuf.writeLong(yrpcRequest.getRequestId());
-
-        byteBuf.writeBytes(getBodyBytes(yrpcRequest.getRequestPayload()));
-        byteBuf.writeLong(yrpcRequest.getTimeStamp());
 
 //        // 如果是心跳请求，就不处理请求体
 //        if(yrpcRequest.getRequestType() == RequestType.HEART_BEAT.getId()){
@@ -66,56 +63,45 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
 //            return;
 //        }
 
-//        // 写入请求体（requestPayload）
-//        // 1、根据配置的序列化方式进行序列化
-//        // 怎么实现序列化 1、工具类 耦合性很高 如果以后我想替换序列化的方式，很难
-//        byte[] body = null;
-//        if (yrpcRequest.getRequestPayload() != null) {
-//            Serializer serializer = SerializerFactory.getSerializer(yrpcRequest.getSerializeType()).getImpl();
-//            body = serializer.serialize(yrpcRequest.getRequestPayload());
-//            // 2、根据配置的压缩方式进行压缩
-//            Compressor compressor = CompressorFactory.getCompressor(yrpcRequest.getCompressType()).getImpl();
-//            body = compressor.compress(body);
-//        }
-//
-//        if (body != null) {
-//            byteBuf.writeBytes(body);
-//        }
-//        int bodyLength = body == null ? 0 : body.length;
-//
-//        // 重新处理报文的总长度
-//        // 先保存当前的写指针的位置
-//        int writerIndex = byteBuf.writerIndex();
-//        // 将写指针的位置移动到总长度的位置上
-//        byteBuf.writerIndex(MessageFormatConstant.MAGIC.length
-//                + MessageFormatConstant.VERSION_LENGTH + MessageFormatConstant.HEADER_FIELD_LENGTH
-//        );
-//        byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH + bodyLength);
-//        // 将写指针归位
-//        byteBuf.writerIndex(writerIndex);
-//
-//        if (log.isDebugEnabled()) {
-//            log.debug("请求【{}】已经完成报文的编码。", yrpcRequest.getRequestId());
-//        }
+        // 写入请求体（requestPayload）
 
+        byte[] body = getBodyBytes(yrpcRequest.getRequestPayload());
+        if(body != null){
+            byteBuf.writeBytes(body);
+        }
+        int bodyLength = body == null ? 0 : body.length;
+
+        // 重新处理报文的总长度
+        // 先保存当前的写指针的位置
+        int writerIndex = byteBuf.writerIndex();
+        // 将写指针的位置移动到总长度的位置上
+        byteBuf.writerIndex(MessageFormatConstant.MAGIC.length
+                + MessageFormatConstant.VERSION_LENGTH + MessageFormatConstant.HEADER_FIELD_LENGTH
+        );
+        byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH + bodyLength);
+        // 将写指针归位
+        byteBuf.writerIndex(writerIndex);
     }
 
     private byte[] getBodyBytes(RequestPayload requestPayload) {
-        //  对象怎么变成一个字节数据 序列化 压缩
+        // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
+        if(requestPayload == null){
+            return null;
+        }
 
+        // 希望可以通过一些设计模式，面向对象的编程，让我们可以配置修改序列化和压缩的方式
+        // 对象怎么变成一个字节数据  序列化  压缩
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
             outputStream.writeObject(requestPayload);
+
+            // 压缩
+
             return baos.toByteArray();
-        } catch (IOException e){
-            log.info("序列化时异常");
+        } catch (IOException e) {
+            log.error("序列化时出现异常");
             throw new RuntimeException(e);
         }
-
     }
-
-
-
 }
-

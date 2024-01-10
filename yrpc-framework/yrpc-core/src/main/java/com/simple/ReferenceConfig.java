@@ -67,3 +67,4 @@ public class ReferenceConfig<T> {
         this.registry = registry;
     }
 }
+

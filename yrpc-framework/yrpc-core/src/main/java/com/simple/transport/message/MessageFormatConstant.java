@@ -31,4 +31,6 @@ public class MessageFormatConstant {
 
     // 总长度占用的字节数
     public static final int FULL_FIELD_LENGTH = 4;
+
+
 }

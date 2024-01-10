@@ -3,6 +3,7 @@ package com.simple.proxy.handler;
 import com.simple.NettyBootstrapInitializer;
 import com.simple.YrpcBootstrap;
 import com.simple.discovery.Registry;
+import com.simple.enumeration.RequestType;
 import com.simple.exceptions.DiscoveryException;
 import com.simple.exceptions.NetworkException;
 import com.simple.transport.message.RequestPayload;
@@ -85,7 +86,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         YrpcRequest yrpcRequest = YrpcRequest.builder()
                 .requestId(1L)
                 .compressType((byte) 1)
-                .requestType((byte) 1)
+                .requestType(RequestType.REQUEST.getId())
                 .serializeType((byte) 1)
                 .requestPayload(requestPayload)
                 .build();
