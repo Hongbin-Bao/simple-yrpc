@@ -1,6 +1,7 @@
 package com.simple.enumeration;
 
 /**
+ *  用来标记请求类型
  * @author Hongbin BAO
  * @Date 2024/1/10 16:58
  */
@@ -24,4 +25,3 @@ public enum RequestType {
         return type;
     }
 }
-

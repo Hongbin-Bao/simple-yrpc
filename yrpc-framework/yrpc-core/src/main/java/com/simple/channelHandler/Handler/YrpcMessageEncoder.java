@@ -33,6 +33,7 @@ import java.io.ObjectOutputStream;
  */
 @Slf4j
 public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
+
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, YrpcRequest yrpcRequest, ByteBuf byteBuf) throws Exception {
         // 4个字节的魔数值
@@ -42,31 +43,51 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
         // 2个字节的头部的长度
         byteBuf.writeShort(MessageFormatConstant.HEADER_LENGTH);
         // 总长度不清楚，不知道body的长度 writeIndex(写指针)
-        byteBuf.writerIndex(byteBuf.writerIndex() + 4);
+        byteBuf.writerIndex(byteBuf.writerIndex() + MessageFormatConstant.FULL_FIELD_LENGTH);
         // 3个类型
         byteBuf.writeByte(yrpcRequest.getRequestType());
         byteBuf.writeByte(yrpcRequest.getSerializeType());
         byteBuf.writeByte(yrpcRequest.getCompressType());
         // 8字节的请求id
         byteBuf.writeLong(yrpcRequest.getRequestId());
+
+//        // 如果是心跳请求，就不处理请求体
+//        if(yrpcRequest.getRequestType() == RequestType.HEART_BEAT.getId()){
+//            // 处理一下总长度，其实总长度 = header长度
+//            int writerIndex = byteBuf.writerIndex();
+//            byteBuf.writerIndex(MessageFormatConstant.MAGIC.length
+//                + MessageFormatConstant.VERSION_LENGTH + MessageFormatConstant.HEADER_FIELD_LENGTH
+//            );
+//            byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH);
+//            byteBuf.writerIndex(writerIndex);
+//            return;
+//        }
+
         // 写入请求体（requestPayload）
+
         byte[] body = getBodyBytes(yrpcRequest.getRequestPayload());
-        byteBuf.writeBytes(body);
+        if(body != null){
+            byteBuf.writeBytes(body);
+        }
+        int bodyLength = body == null ? 0 : body.length;
 
         // 重新处理报文的总长度
         // 先保存当前的写指针的位置
         int writerIndex = byteBuf.writerIndex();
         // 将写指针的位置移动到总长度的位置上
-        byteBuf.writerIndex(7);
-        byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH + body.length);
-
+        byteBuf.writerIndex(MessageFormatConstant.MAGIC.length
+                + MessageFormatConstant.VERSION_LENGTH + MessageFormatConstant.HEADER_FIELD_LENGTH
+        );
+        byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH + bodyLength);
         // 将写指针归位
         byteBuf.writerIndex(writerIndex);
-
     }
 
     private byte[] getBodyBytes(RequestPayload requestPayload) {
-        // todo 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
+        // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
+        if(requestPayload == null){
+            return null;
+        }
 
         // 希望可以通过一些设计模式，面向对象的编程，让我们可以配置修改序列化和压缩的方式
         // 对象怎么变成一个字节数据  序列化  压缩

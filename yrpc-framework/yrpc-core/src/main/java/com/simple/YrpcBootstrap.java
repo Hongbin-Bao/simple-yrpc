@@ -45,7 +45,7 @@ public class YrpcBootstrap {
     public final static Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
 
     // 维护已经发布且暴露的服务列表 key-> interface的全限定名  value -> ServiceConfig
-    private final static Map<String,ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
+    public final static Map<String,ServiceConfig<?>> SERVERS_LIST = new ConcurrentHashMap<>(16);
 
     // 定义全局的对外挂起的 completableFuture
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>(128);
@@ -151,7 +151,9 @@ public class YrpcBootstrap {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             // 是核心，我们需要添加很多入站和出站的handler
                             socketChannel.pipeline().addLast(new LoggingHandler())
-                                    .addLast(new YrpcMessageDecoder());
+                                    .addLast(new YrpcMessageDecoder())
+                                    // 根据请求进行方法调用
+                                    .addLast(new MethodCallHandler());
                         }
                     });
 

@@ -86,7 +86,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         YrpcRequest yrpcRequest = YrpcRequest.builder()
                 .requestId(1L)
                 .compressType((byte) 1)
-                .requestType((byte) 1)
+                .requestType(RequestType.REQUEST.getId())
                 .serializeType((byte) 1)
                 .requestPayload(requestPayload)
                 .build();

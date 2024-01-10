@@ -96,7 +96,7 @@ public class YrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         // 4、解析总长度
         int fullLength = byteBuf.readInt();
 
-        // 5、请求类型,todo 判断是不是心跳检测
+        // 5、请求类型
         byte requestType = byteBuf.readByte();
 
         // 6、序列化类型
@@ -114,8 +114,8 @@ public class YrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         yrpcRequest.setCompressType(compressType);
         yrpcRequest.setSerializeType(serializeType);
 
-        // todo 心跳请求没有负载，此处可以判断并直接返回
-        if( requestType == 2 ){
+        // 心跳请求没有负载，此处可以判断并直接返回
+        if( requestType == RequestType.HEART_BEAT.getId()){
             return yrpcRequest;
         }
 
@@ -139,4 +139,3 @@ public class YrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         return yrpcRequest;
     }
 }
-
