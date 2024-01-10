@@ -17,11 +17,12 @@ package com.simple.transport.message;
  * @Date 2024/1/9 18:48
  */
 public class MessageFormatConstant {
+
     public final static byte[] MAGIC = "yrpc".getBytes();
     public final static byte VERSION = 1;
 
     // 头部信息的长度
-    public final static short HEADER_LENGTH = (byte)(MAGIC.length + 1 + 2 + 4 + 1 + 1 + 1 + 8 + 8);
+    public final static short HEADER_LENGTH = (byte)(MAGIC.length + 1 + 2 + 4 + 1 + 1 + 1 + 8);
     // 头部信息长度占用的字节数
     public static final int HEADER_FIELD_LENGTH = 2;
 
@@ -31,6 +32,4 @@ public class MessageFormatConstant {
 
     // 总长度占用的字节数
     public static final int FULL_FIELD_LENGTH = 4;
-
-
 }

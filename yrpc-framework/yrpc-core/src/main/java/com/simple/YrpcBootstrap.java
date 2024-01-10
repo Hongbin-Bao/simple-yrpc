@@ -150,16 +150,8 @@ public class YrpcBootstrap {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             // 是核心，我们需要添加很多入站和出站的handler
-                            socketChannel.pipeline().addLast(new SimpleChannelInboundHandler<>() {
-                                @Override
-                                protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
-                                    ByteBuf byteBuf = (ByteBuf) msg;
-                                    log.info("byteBuf-->{}", byteBuf.toString(Charset.defaultCharset()));
-
-                                    // 可以就此不管了，也可以写回去
-                                    channelHandlerContext.channel().writeAndFlush(Unpooled.copiedBuffer("yrpc--hello".getBytes()));
-                                }
-                            });
+                            socketChannel.pipeline().addLast(new LoggingHandler())
+                                    .addLast(new YrpcMessageDecoder());
                         }
                     });
 
@@ -192,4 +184,3 @@ public class YrpcBootstrap {
         return this;
     }
 }
-

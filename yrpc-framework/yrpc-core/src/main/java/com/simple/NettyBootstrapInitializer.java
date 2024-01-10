@@ -32,21 +32,7 @@ public class NettyBootstrapInitializer {
         bootstrap.group(group)
                 // 选择初始化一个什么样的channel
                 .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new SimpleChannelInboundHandler<ByteBuf>() {
-                            @Override
-                            protected void channelRead0(ChannelHandlerContext channelHandlerContext, ByteBuf msg) throws Exception {
-                                // 服务提供方，给与的结果
-                                String result = msg.toString(Charset.defaultCharset());
-                                // 从全局的挂起的请求中寻找与之匹配的待处理的 cf
-                                CompletableFuture<Object> completableFuture = YrpcBootstrap.PENDING_REQUEST.get(1L);
-                                completableFuture.complete(result);
-                            }
-                        });
-                    }
-                });
+                .handler(new ConsumerChannelInitializer());
     }
 
     private NettyBootstrapInitializer() {
