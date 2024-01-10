@@ -15,35 +15,27 @@ import lombok.extern.slf4j.Slf4j;
  * @author Hongbin BAO
  * @Date 2024/1/9 00:55
  */
-@Slf4j
 public class NettyBootstrapInitializer {
 
     private static final Bootstrap bootstrap = new Bootstrap();
 
     static {
-        // 创建channel
         NioEventLoopGroup group = new NioEventLoopGroup();
-
-        // 启动一个客户端需要一个辅助类，bootstrap
-        Bootstrap bootstrap = new Bootstrap();
-
         bootstrap.group(group)
-
                 // 选择初始化一个什么样的channel
                 .channel(NioSocketChannel.class)
-                .handler(new ConsumerChannelInitializer());
-
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline().addLast(new ConsumerChannelInitializer());
+                    }
+                });
     }
 
-    private static NioEventLoopGroup group = new NioEventLoopGroup();
-
-
     private NettyBootstrapInitializer() {
-
     }
 
     public static Bootstrap getBootstrap() {
-        // 建立一个新的channel
         return bootstrap;
     }
 }

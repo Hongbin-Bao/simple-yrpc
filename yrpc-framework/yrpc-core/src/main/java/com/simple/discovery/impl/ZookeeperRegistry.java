@@ -1,6 +1,7 @@
 package com.simple.discovery.impl;
 
 import com.simple.ServiceConfig;
+import com.simple.YrpcBootstrap;
 import com.simple.discovery.AbstractRegistry;
 import com.simple.exceptions.DiscoveryException;
 import com.simple.exceptions.NetworkException;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
  * @author Hongbin BAO
  * @Date 2024/1/7 23:16
  */
+
+
+
 @Slf4j
 public class ZookeeperRegistry extends AbstractRegistry {
 
@@ -65,37 +69,28 @@ public class ZookeeperRegistry extends AbstractRegistry {
     }
 
 
-    
     @Override
     public InetSocketAddress lookup(String serviceName) {
-        // 1。 找到服务对应的节点
+        // 1、找到服务对应的节点
         String serviceNode = Constant.BASE_PROVIDERS_PATH + "/" + serviceName;
 
-        //  2。 从zk 中获取他的子节点 192.168.12.123:2151
-
+        // 2、从zk中获取他的子节点, 192.168.12.123:2151
         List<String> children = ZookeeperUtils.getChildren(zooKeeper, serviceNode, null);
         // 获取了所有的可用的服务列表
-
         List<InetSocketAddress> inetSocketAddresses = children.stream().map(ipString -> {
             String[] ipAndPort = ipString.split(":");
             String ip = ipAndPort[0];
             int port = Integer.valueOf(ipAndPort[1]);
             return new InetSocketAddress(ip, port);
-
         }).toList();
+
         if(inetSocketAddresses.size() == 0){
-           throw new DiscoveryException("未发现任何可用的服务主机");
+            throw new DiscoveryException("未发现任何可用的服务主机.");
         }
-
-        // todo 问题  我们需要每次调用相关方法的时候都需要去注册中心拉取相关服务列表吗？ 本地缓存+watcher
-        //      我们如何合理的选择一个可用的服务 而不是只获取第一个?       负载均衡策略
-        //InetAddress address = inetSocketAddresses.get(0).getAddress();
+        // todo q:我们每次调用相关方法的时候都需要去注册中心拉取服务列表吗？  本地缓存 + watcher
+        //        我们如何合理的选择一个可用的服务，而不是只获取第一个？     负载均衡策略
         return inetSocketAddresses.get(0);
-
     }
 
-    @Override
-    public List<InetSocketAddress> lookup(String name, String group) {
-        return null;
-    }
+
 }

@@ -10,5 +10,5 @@ import java.util.List;
  * @Date 2024/1/7 23:15
  */
 public abstract class AbstractRegistry implements Registry{
-    public abstract List<InetSocketAddress> lookup(String name, String group);
+
 }

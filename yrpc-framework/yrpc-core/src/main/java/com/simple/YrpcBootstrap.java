@@ -191,11 +191,6 @@ public class YrpcBootstrap {
             }
         }
 
-//        try {
-//            Thread.sleep(100000);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
 
