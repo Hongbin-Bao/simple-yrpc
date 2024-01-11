@@ -2,8 +2,11 @@ package com.simple.channelHandler.Handler;
 
 import com.simple.ServiceConfig;
 import com.simple.YrpcBootstrap;
+import com.simple.enumeration.RequestType;
+import com.simple.enumeration.RespCode;
 import com.simple.transport.message.RequestPayload;
 import com.simple.transport.message.YrpcRequest;
+import com.simple.transport.message.YrpcResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +26,23 @@ public class MethodCallHandler extends SimpleChannelInboundHandler<YrpcRequest> 
         RequestPayload requestPayload = yrpcRequest.getRequestPayload();
 
         // 2、根据负载内容进行方法调用
-        Object object = callTargetMethod(requestPayload);
+        Object result = callTargetMethod(requestPayload);
 
-        // todo 3、封装响应
 
+        if(log.isDebugEnabled()){
+            log.debug("请求【{}】已经在服务端完成方法调用",yrpcRequest.getRequestId());
+        }
+
+        // 封装响应
+        YrpcResponse yrpcResponse = new YrpcResponse();
+        yrpcResponse.setCode(RespCode.SUCCESS.getCode());
+        yrpcResponse.setRequestId(yrpcRequest.getRequestId());
+        yrpcResponse.setCompressType(yrpcRequest.getCompressType());
+        yrpcResponse.setSerializeType(yrpcRequest.getSerializeType());
+        yrpcResponse.setBody(result);
 
         // 4、写出响应
-        channelHandlerContext.channel().writeAndFlush(object);
+        channelHandlerContext.channel().writeAndFlush(yrpcResponse);
 
     }
 

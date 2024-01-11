@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.nio.ByteOrder;
+
 /**
  * * 自定义协议编码器
  * * <p>
@@ -39,17 +39,14 @@ import java.nio.ByteOrder;
  * * body
  * *
  * * 出站时，第一个经过的处理器
- * * @author it楠老师
- * * @createTime 2023-07-02
+
  * <p>
  * 基于长度字段的帧解码器
- *
- * @author it楠老师
- * @createTime 2023-07-03
+
  */
 @Slf4j
-public class YrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
-    public YrpcMessageDecoder() {
+public class YrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
+    public YrpcRequestDecoder() {
         super(
                 // 找到当前报文的总长度，截取报文，截取出来的报文我们可以去进行解析
                 // 最大帧的长度，超过这个maxFrameLength值会直接丢弃
@@ -113,6 +110,7 @@ public class YrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         yrpcRequest.setRequestType(requestType);
         yrpcRequest.setCompressType(compressType);
         yrpcRequest.setSerializeType(serializeType);
+        yrpcRequest.setRequestId(requestId);
 
         // 心跳请求没有负载，此处可以判断并直接返回
         if( requestType == RequestType.HEART_BEAT.getId()){
@@ -134,6 +132,11 @@ public class YrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
             yrpcRequest.setRequestPayload(requestPayload);
         } catch (IOException | ClassNotFoundException e){
             log.error("请求【{}】反序列化时发生了异常",requestId,e);
+        }
+
+
+        if(log.isDebugEnabled()){
+            log.debug("请求【{}】已经在服务端完成解码工作",yrpcRequest.getRequestId());
         }
 
         return yrpcRequest;

@@ -1,8 +1,11 @@
 package com.simple.channelHandler.Handler;
 
+import com.simple.serialize.Serializer;
+import com.simple.serialize.SerializerFactory;
 import com.simple.transport.message.MessageFormatConstant;
 import com.simple.transport.message.RequestPayload;
 import com.simple.transport.message.YrpcRequest;
+import com.simple.transport.message.YrpcResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -14,28 +17,15 @@ import java.io.ObjectOutputStream;
 
 /**
  *
- *  * <p>
- *  * 4B magic(魔数)   --->yrpc.getBytes()
- *  * 1B version(版本)   ----> 1
- *  * 2B header length 首部的长度
- *  * 4B full length 报文总长度
- *  * 1B serialize
- *  * 1B compress
- *  * 1B requestType
- *  * 8B requestId
- *  * <p>
- *  * body
- *  * <p>
  *
- * 出站时第一个经过的处理器
  * @author Hongbin BAO
- * @Date 2024/1/9 18:40
+ * @Date 2024/1/11 20:24
  */
 @Slf4j
-public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
+public class YrpcResponseEncoder extends MessageToByteEncoder<YrpcResponse> {
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, YrpcRequest yrpcRequest, ByteBuf byteBuf) throws Exception {
+    protected void encode(ChannelHandlerContext channelHandlerContext, YrpcResponse yrpcResponse, ByteBuf byteBuf) throws Exception {
         // 4个字节的魔数值
         byteBuf.writeBytes(MessageFormatConstant.MAGIC);
         // 1个字节的版本号
@@ -45,27 +35,19 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
         // 总长度不清楚，不知道body的长度 writeIndex(写指针)
         byteBuf.writerIndex(byteBuf.writerIndex() + MessageFormatConstant.FULL_FIELD_LENGTH);
         // 3个类型
-        byteBuf.writeByte(yrpcRequest.getRequestType());
-        byteBuf.writeByte(yrpcRequest.getSerializeType());
-        byteBuf.writeByte(yrpcRequest.getCompressType());
+        byteBuf.writeByte(yrpcResponse.getCode());
+        byteBuf.writeByte(yrpcResponse.getSerializeType());
+        byteBuf.writeByte(yrpcResponse.getCompressType());
         // 8字节的请求id
-        byteBuf.writeLong(yrpcRequest.getRequestId());
+        byteBuf.writeLong(yrpcResponse.getRequestId());
+        System.out.println("********");
+        System.out.println(yrpcResponse.getRequestId());
+        System.out.println("********");
 
-//        // 如果是心跳请求，就不处理请求体
-//        if(yrpcRequest.getRequestType() == RequestType.HEART_BEAT.getId()){
-//            // 处理一下总长度，其实总长度 = header长度
-//            int writerIndex = byteBuf.writerIndex();
-//            byteBuf.writerIndex(MessageFormatConstant.MAGIC.length
-//                + MessageFormatConstant.VERSION_LENGTH + MessageFormatConstant.HEADER_FIELD_LENGTH
-//            );
-//            byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH);
-//            byteBuf.writerIndex(writerIndex);
-//            return;
-//        }
 
         // 写入请求体（requestPayload）
 
-        byte[] body = getBodyBytes(yrpcRequest.getRequestPayload());
+        byte[] body = getBodyBytes(yrpcResponse.getBody());
         if(body != null){
             byteBuf.writeBytes(body);
         }
@@ -81,9 +63,14 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
         byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH + bodyLength);
         // 将写指针归位
         byteBuf.writerIndex(writerIndex);
+
+        if(log.isDebugEnabled()){
+            log.debug("响应【{}】已经在服务端完成编码工作",yrpcResponse.getRequestId());
+        }
+
     }
 
-    private byte[] getBodyBytes(RequestPayload requestPayload) {
+    private byte[] getBodyBytes(Object requestPayload) {
         // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
         if(requestPayload == null){
             return null;
@@ -105,3 +92,4 @@ public class YrpcMessageEncoder extends MessageToByteEncoder<YrpcRequest> {
         }
     }
 }
+
