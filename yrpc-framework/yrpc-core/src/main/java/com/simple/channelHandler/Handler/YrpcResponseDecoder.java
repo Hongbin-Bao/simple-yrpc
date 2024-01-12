@@ -99,7 +99,9 @@ public class YrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         // todo 解压缩
 
         // todo 反序列化
-//
+        Serializer serializer = SerializerFactory.getSerializer(yrpcResponse.getSerializeType()).getSerializer();
+        Object body = serializer.deserialize(payload, Object.class);
+        yrpcResponse.setBody(body);
 
 
         // todo 解压缩
@@ -113,15 +115,15 @@ public class YrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
 //        } catch (IOException | ClassNotFoundException e){
 //            log.error("请求【{}】反序列化时发生了异常",requestId,e);
 //        }
-
-        try(ByteArrayInputStream bis = new ByteArrayInputStream(payload);
-            ObjectInputStream ois = new ObjectInputStream(bis)
-        ){
-            Object body = ois.readObject();
-            yrpcResponse.setBody(body);
-        }catch (IOException|ClassNotFoundException e){
-            log.error("请求{}反序列化时发生了异常",requestId,e);
-        }
+//
+//        try(ByteArrayInputStream bis = new ByteArrayInputStream(payload);
+//            ObjectInputStream ois = new ObjectInputStream(bis)
+//        ){
+//            Object body = ois.readObject();
+//            yrpcResponse.setBody(body);
+//        }catch (IOException|ClassNotFoundException e){
+//            log.error("请求{}反序列化时发生了异常",requestId,e);
+//        }
 
         if(log.isDebugEnabled()){
             log.debug("响应【{}】已经在调用端完成解码工作",yrpcResponse.getRequestId());

@@ -1,6 +1,9 @@
 package com.simple.channelHandler.Handler;
 
+import com.simple.YrpcBootstrap;
 import com.simple.enumeration.RequestType;
+import com.simple.serialize.Serializer;
+import com.simple.serialize.SerializerFactory;
 import com.simple.transport.message.MessageFormatConstant;
 import com.simple.transport.message.RequestPayload;
 import com.simple.transport.message.YrpcRequest;
@@ -124,20 +127,26 @@ public class YrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
         // 有了字节数组之后就可以解压缩，反序列化
         // todo 解压缩
 
-        // todo 反序列化
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(payload);
-             ObjectInputStream ois = new ObjectInputStream(bis)
-        ) {
-            RequestPayload requestPayload = (RequestPayload) ois.readObject();
-            yrpcRequest.setRequestPayload(requestPayload);
-        } catch (IOException | ClassNotFoundException e){
-            log.error("请求【{}】反序列化时发生了异常",requestId,e);
-        }
+        // 反序列化
+        // 1 --> jdk
+        Serializer serializer = SerializerFactory.getSerializer(serializeType).getSerializer();
+        RequestPayload requestPayload = serializer.deserialize(payload, RequestPayload.class);
 
+        yrpcRequest.setRequestPayload(requestPayload);
 
-        if(log.isDebugEnabled()){
-            log.debug("请求【{}】已经在服务端完成解码工作",yrpcRequest.getRequestId());
-        }
+//        try (ByteArrayInputStream bis = new ByteArrayInputStream(payload);
+//             ObjectInputStream ois = new ObjectInputStream(bis)
+//        ) {
+//            RequestPayload requestPayload = (RequestPayload) ois.readObject();
+//            yrpcRequest.setRequestPayload(requestPayload);
+//        } catch (IOException | ClassNotFoundException e){
+//            log.error("请求【{}】反序列化时发生了异常",requestId,e);
+//        }
+//
+//
+//        if(log.isDebugEnabled()){
+//            log.debug("请求【{}】已经在服务端完成解码工作",yrpcRequest.getRequestId());
+//        }
 
         return yrpcRequest;
     }

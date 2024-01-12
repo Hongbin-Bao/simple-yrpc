@@ -2,6 +2,7 @@ package com.simple;
 
 import com.simple.discovery.RegistryConfig;
 import com.simple.impl.HelloYrpc;
+import com.simple.serialize.impl.JdkSerializer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,6 +26,7 @@ public class ConsumerApplication {
         YrpcBootstrap.getInstance()
                 .application("first-yrpc-consumer")
                 .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
+                .serialize("jdk")
                 .reference(reference);
 
         // 获取一个代理对象

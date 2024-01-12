@@ -48,6 +48,8 @@ public class YrpcBootstrap {
     // 定义全局的对外挂起的 completableFuture
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>(128);
 
+    public static String SERIALIZE_TYPE = "jdk";
+
 
     // 维护一个zookeeper实例
 //    private ZooKeeper zooKeeper;
@@ -183,5 +185,19 @@ public class YrpcBootstrap {
         // 1、reference需要一个注册中心
         reference.setRegistry(registry);
         return this;
+    }
+
+    /**
+     * 配置序列化的方式
+     * @param serializeType 序列化的方式
+     */
+    public YrpcBootstrap serialize(String serializeType) {
+        SERIALIZE_TYPE = serializeType;
+        if(log.isDebugEnabled()){
+            log.debug("我们配置了使用的序列化的方式为【{}】",serializeType);
+        }
+        return this;
+
+
     }
 }

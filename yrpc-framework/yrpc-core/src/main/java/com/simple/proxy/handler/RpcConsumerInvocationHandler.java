@@ -6,6 +6,7 @@ import com.simple.discovery.Registry;
 import com.simple.enumeration.RequestType;
 import com.simple.exceptions.DiscoveryException;
 import com.simple.exceptions.NetworkException;
+import com.simple.serialize.SerializerFactory;
 import com.simple.transport.message.RequestPayload;
 import com.simple.transport.message.YrpcRequest;
 import io.netty.channel.Channel;
@@ -85,7 +86,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         // todo 需要对请求id和各种类型做处理
         YrpcRequest yrpcRequest = YrpcRequest.builder()
                 .requestId(YrpcBootstrap.ID_GENERATOR.getId())
-                .compressType((byte) 1)
+                .compressType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
                 .requestType(RequestType.REQUEST.getId())
                 .serializeType((byte) 1)
                 .requestPayload(requestPayload)

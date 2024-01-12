@@ -47,7 +47,16 @@ public class YrpcResponseEncoder extends MessageToByteEncoder<YrpcResponse> {
 
         // 写入请求体（requestPayload）
 
-        byte[] body = getBodyBytes(yrpcResponse.getBody());
+
+        // 对响应做序列化
+        Serializer serializer = SerializerFactory.getSerializer(yrpcResponse.getSerializeType()).getSerializer();
+
+
+        byte[] body = serializer.serialize(yrpcResponse.getBody());
+
+
+        // todo 压缩
+
         if(body != null){
             byteBuf.writeBytes(body);
         }
@@ -70,26 +79,26 @@ public class YrpcResponseEncoder extends MessageToByteEncoder<YrpcResponse> {
 
     }
 
-    private byte[] getBodyBytes(Object requestPayload) {
-        // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
-        if(requestPayload == null){
-            return null;
-        }
-
-        // 希望可以通过一些设计模式，面向对象的编程，让我们可以配置修改序列化和压缩的方式
-        // 对象怎么变成一个字节数据  序列化  压缩
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
-            outputStream.writeObject(requestPayload);
-
-            // 压缩
-
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.error("序列化时出现异常");
-            throw new RuntimeException(e);
-        }
-    }
+//    private byte[] getBodyBytes(Object requestPayload) {
+//        // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
+//        if(requestPayload == null){
+//            return null;
+//        }
+//
+//        // 希望可以通过一些设计模式，面向对象的编程，让我们可以配置修改序列化和压缩的方式
+//        // 对象怎么变成一个字节数据  序列化  压缩
+//        try {
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+//            outputStream.writeObject(requestPayload);
+//
+//            // 压缩
+//
+//            return baos.toByteArray();
+//        } catch (IOException e) {
+//            log.error("序列化时出现异常");
+//            throw new RuntimeException(e);
+//        }
+//    }
 }
 

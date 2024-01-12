@@ -1,5 +1,10 @@
 package com.simple.channelHandler.Handler;
 
+import com.simple.YrpcBootstrap;
+import com.simple.serialize.SerializeUtil;
+import com.simple.serialize.Serializer;
+import com.simple.serialize.SerializerFactory;
+import com.simple.serialize.impl.JdkSerializer;
 import com.simple.transport.message.MessageFormatConstant;
 import com.simple.transport.message.RequestPayload;
 import com.simple.transport.message.YrpcRequest;
@@ -64,8 +69,15 @@ public class YrpcRequestEncoder extends MessageToByteEncoder<YrpcRequest> {
 //        }
 
         // 写入请求体（requestPayload）
+        // 1. 根据配置的序列化方式进行序列化
+        // 怎么实现序列化 1.工具类 耦合性很高 如果以后我想替换序列化的方式 很难
 
-        byte[] body = getBodyBytes(yrpcRequest.getRequestPayload());
+        Serializer serializer =  SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getSerializer();
+        byte[] body = serializer.serialize(yrpcRequest.getRequestPayload());
+
+
+
+        // 2. 根据配置的压缩方式进行压缩
         if(body != null){
             byteBuf.writeBytes(body);
         }
@@ -88,25 +100,25 @@ public class YrpcRequestEncoder extends MessageToByteEncoder<YrpcRequest> {
 
     }
 
-    private byte[] getBodyBytes(RequestPayload requestPayload) {
-        // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
-        if(requestPayload == null){
-            return null;
-        }
-
-        // 希望可以通过一些设计模式，面向对象的编程，让我们可以配置修改序列化和压缩的方式
-        // 对象怎么变成一个字节数据  序列化  压缩
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
-            outputStream.writeObject(requestPayload);
-
-            // 压缩
-
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.error("序列化时出现异常");
-            throw new RuntimeException(e);
-        }
-    }
+//    private byte[] getBodyBytes(RequestPayload requestPayload) {
+//        // 针对不同的消息类型需要做不同的处理，心跳的请求，没有payload
+//        if(requestPayload == null){
+//            return null;
+//        }
+//
+//        // 希望可以通过一些设计模式，面向对象的编程，让我们可以配置修改序列化和压缩的方式
+//        // 对象怎么变成一个字节数据  序列化  压缩
+//        try {
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+//            outputStream.writeObject(requestPayload);
+//
+//            // 压缩
+//
+//            return baos.toByteArray();
+//        } catch (IOException e) {
+//            log.error("序列化时出现异常");
+//            throw new RuntimeException(e);
+//        }
+//    }
 }
