@@ -45,6 +45,7 @@ public class JsonSerializer implements Serializer {
         RequestPayload requestPayload = new RequestPayload();
         requestPayload.setInterfaceName("xxxx");
         requestPayload.setMethodName("yyy");
+        //requestPayload.setReturnType(String.class);
         requestPayload.setParametersValue(new Object[]{"xxxx"});
 
         byte[] serialize = serializer.serialize(requestPayload);
