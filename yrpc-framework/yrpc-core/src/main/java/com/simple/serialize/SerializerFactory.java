@@ -18,7 +18,7 @@ public class SerializerFactory {
     static {
         SerializerWrapper jdk = new SerializerWrapper((byte) 1, "jdk", new JdkSerializer());
         SerializerWrapper json = new SerializerWrapper((byte) 2, "json", new JsonSerializer());
-        SerializerWrapper hessian = new SerializerWrapper((byte) 3, "json", new HessianSerializer());
+        SerializerWrapper hessian = new SerializerWrapper((byte) 3, "hessian", new HessianSerializer());
         SERIALIZER_CACHE.put("jdk",jdk);
         SERIALIZER_CACHE.put("json",json);
         SERIALIZER_CACHE.put("hessian",hessian);

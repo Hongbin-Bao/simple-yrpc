@@ -88,7 +88,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 .requestId(YrpcBootstrap.ID_GENERATOR.getId())
                 .compressType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
                 .requestType(RequestType.REQUEST.getId())
-                .serializeType((byte) 1)
+                .serializeType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
                 .requestPayload(requestPayload)
                 .build();
 

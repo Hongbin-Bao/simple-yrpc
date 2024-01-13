@@ -26,7 +26,7 @@ public class ConsumerApplication {
         YrpcBootstrap.getInstance()
                 .application("first-yrpc-consumer")
                 .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
-                .serialize("jdk")
+                .serialize("hessian")
                 .reference(reference);
 
         // 获取一个代理对象
