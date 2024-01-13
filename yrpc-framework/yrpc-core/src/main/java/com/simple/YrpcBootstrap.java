@@ -5,6 +5,9 @@ import com.simple.channelHandler.Handler.YrpcRequestDecoder;
 import com.simple.channelHandler.Handler.YrpcResponseEncoder;
 import com.simple.discovery.Registry;
 import com.simple.discovery.RegistryConfig;
+import com.simple.loadbalancer.LoadBalancer;
+import com.simple.loadbalancer.imlp.ConsistentHashBalancer;
+import com.simple.transport.message.YrpcRequest;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -27,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class YrpcBootstrap {
 
 
+    public static final int PORT = 8090;
     // YrpcBootstrap是个单例，我们希望每个应用程序只有一个实例
     private static final YrpcBootstrap yrpcBootstrap = new YrpcBootstrap();
 
@@ -34,11 +38,15 @@ public class YrpcBootstrap {
     private String appName = "default";
     private RegistryConfig registryConfig;
     private ProtocolConfig protocolConfig;
-    private int port = 8088;
-
     public static final IdGenerator ID_GENERATOR = new IdGenerator(1,2);
+    public static String SERIALIZE_TYPE = "jdk";
+    public static String COMPRESS_TYPE = "gzip";
+
+    public static final ThreadLocal<YrpcRequest> REQUEST_THREAD_LOCAL = new ThreadLocal<>();
+
     // 注册中心
     private Registry registry;
+    public static LoadBalancer LOAD_BALANCER;
 
     // 连接的缓存,如果使用InetSocketAddress这样的类做key，一定要看他有没有重写equals方法和toString方法
     public final static Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
@@ -48,10 +56,6 @@ public class YrpcBootstrap {
 
     // 定义全局的对外挂起的 completableFuture
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>(128);
-
-    public static String SERIALIZE_TYPE = "jdk";
-
-    public static  String COMPRESS_TYPE = "gzip";
 
 
     // 维护一个zookeeper实例
@@ -86,6 +90,8 @@ public class YrpcBootstrap {
 
         // 尝试使用 registryConfig 获取一个注册中心，有点工厂设计模式的意思了
         this.registry = registryConfig.getRegistry();
+        // todo 需要修改
+        YrpcBootstrap.LOAD_BALANCER = new ConsistentHashBalancer();
         return this;
     }
 
@@ -96,9 +102,9 @@ public class YrpcBootstrap {
      */
     public YrpcBootstrap protocol(ProtocolConfig protocolConfig) {
         this.protocolConfig = protocolConfig;
-        if(log.isDebugEnabled()){
-            log.debug("当前工程使用了：{}协议进行序列化",protocolConfig.toString());
-        }
+//        if(log.isDebugEnabled()){
+//            log.debug("当前工程使用了：{}协议进行序列化",protocolConfig.toString());
+//        }
         return this;
     }
 
@@ -157,12 +163,13 @@ public class YrpcBootstrap {
                                     .addLast(new YrpcRequestDecoder())
                                     // 根据请求进行方法调用
                                     .addLast(new MethodCallHandler())
-                                    .addLast(new YrpcResponseEncoder());
+                                    .addLast(new YrpcResponseEncoder())
+                            ;
                         }
                     });
 
             // 4、绑定端口
-            ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
+            ChannelFuture channelFuture = serverBootstrap.bind(PORT).sync();
 
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e){
@@ -197,11 +204,10 @@ public class YrpcBootstrap {
     public YrpcBootstrap serialize(String serializeType) {
         SERIALIZE_TYPE = serializeType;
         if(log.isDebugEnabled()){
-            log.debug("我们配置了使用的序列化的方式为【{}】",serializeType);
+            log.debug("我们配置了使用的序列化的方式为【{}】.",serializeType);
         }
         return this;
     }
-
 
     public YrpcBootstrap compress(String compressType) {
         COMPRESS_TYPE = compressType;

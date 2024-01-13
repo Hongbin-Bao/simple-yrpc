@@ -32,8 +32,10 @@ public class ConsumerApplication {
 
         // 获取一个代理对象
         HelloYrpc helloYrpc = reference.get();
-        String sayHi = helloYrpc.sayHi("你好");
-        log.info("sayHi-->{}", sayHi);
+        for (int i = 0; i < 10; i++) {
+            String sayHi = helloYrpc.sayHi("你好yrpc");
+            log.info("sayHi-->{}", sayHi);
+        }
     }
 }
 

@@ -46,14 +46,35 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        // 我们调用saHi方法，事实上会走进这个代码段中
-        // 我们已经知道 method（具体的方法），args(参数列表)
-//        log.info("method-->{}", method.getName());
-//        log.info("args-->{}", args);
 
-        // 1、发现服务，从注册中心，寻找一个可用的服务
+
+        /*
+         * ------------------ 1、封装报文 ---------------------------
+         */
+        RequestPayload requestPayload = RequestPayload.builder()
+                .interfaceName(interfaceRef.getName())
+                .methodName(method.getName())
+                .parametersType(method.getParameterTypes())
+                .parametersValue(args)
+                .returnType(method.getReturnType())
+                .build();
+
+        // 创建一个请求
+        YrpcRequest yrpcRequest = YrpcRequest.builder()
+                .requestId(YrpcBootstrap.ID_GENERATOR.getId())
+                .compressType(CompressorFactory.getCompressor(YrpcBootstrap.COMPRESS_TYPE).getCode())
+                .requestType(RequestType.REQUEST.getId())
+                .serializeType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
+                .requestPayload(requestPayload)
+                .build();
+
+        // 将请求存入本地线程，需要在合适的时候remove
+        YrpcBootstrap.REQUEST_THREAD_LOCAL.set(yrpcRequest);
+
+
+        // 2、发现服务，从注册中心拉取服务列表，并通过客户端负载均衡寻找一个可用的服务
         // 传入服务的名字,返回ip+端口
-        InetSocketAddress address = registry.lookup(interfaceRef.getName());
+        InetSocketAddress address = YrpcBootstrap.LOAD_BALANCER.selectServiceAddress(interfaceRef.getName());
         if (log.isDebugEnabled()) {
             log.debug("服务调用方，发现了服务【{}】的可用主机【{}】.",
                     interfaceRef.getName(), address);
@@ -71,28 +92,6 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         if (log.isDebugEnabled()) {
             log.debug("获取了和【{}】建立的连接通道,准备发送数据.", address);
         }
-
-
-
-        /*
-         * ------------------ 封装报文 ---------------------------
-         */
-        RequestPayload requestPayload = RequestPayload.builder()
-                .interfaceName(interfaceRef.getName())
-                .methodName(method.getName())
-                .parametersType(method.getParameterTypes())
-                .parametersValue(args)
-                .returnType(method.getReturnType())
-                .build();
-
-        // todo 需要对请求id和各种类型做处理
-        YrpcRequest yrpcRequest = YrpcRequest.builder()
-                .requestId(YrpcBootstrap.ID_GENERATOR.getId())
-                .compressType(CompressorFactory.getCompressor(YrpcBootstrap.COMPRESS_TYPE).getCode())
-                .requestType(RequestType.REQUEST.getId())
-                .serializeType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
-                .requestPayload(requestPayload)
-                .build();
 
         /*
          * ------------------同步策略-------------------------
@@ -132,7 +131,10 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 completableFuture.completeExceptionally(promise.cause());
             }
         });
-//
+
+        // 清理threadLocal
+        YrpcBootstrap.REQUEST_THREAD_LOCAL.remove();
+
         // 如果没有地方处理这个 completableFuture ，这里会阻塞，等待complete方法的执行
         // q: 我们需要在哪里调用complete方法得到结果，很明显 pipeline 中最终的handler的处理结果
         // 5、获得响应的结果
