@@ -2,6 +2,7 @@ package com.simple.proxy.handler;
 
 import com.simple.NettyBootstrapInitializer;
 import com.simple.YrpcBootstrap;
+import com.simple.compress.CompressorFactory;
 import com.simple.discovery.Registry;
 import com.simple.enumeration.RequestType;
 import com.simple.exceptions.DiscoveryException;
@@ -9,6 +10,7 @@ import com.simple.exceptions.NetworkException;
 import com.simple.serialize.SerializerFactory;
 import com.simple.transport.message.RequestPayload;
 import com.simple.transport.message.YrpcRequest;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
@@ -86,7 +88,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         // todo 需要对请求id和各种类型做处理
         YrpcRequest yrpcRequest = YrpcRequest.builder()
                 .requestId(YrpcBootstrap.ID_GENERATOR.getId())
-                .compressType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
+                .compressType(CompressorFactory.getCompressor(YrpcBootstrap.COMPRESS_TYPE).getCode())
                 .requestType(RequestType.REQUEST.getId())
                 .serializeType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
                 .requestPayload(requestPayload)

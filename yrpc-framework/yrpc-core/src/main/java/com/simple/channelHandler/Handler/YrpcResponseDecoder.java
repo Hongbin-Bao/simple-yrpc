@@ -1,5 +1,7 @@
 package com.simple.channelHandler.Handler;
 
+import com.simple.compress.Compressor;
+import com.simple.compress.CompressorFactory;
 import com.simple.serialize.Serializer;
 import com.simple.serialize.SerializerFactory;
 import com.simple.transport.message.MessageFormatConstant;
@@ -96,34 +98,17 @@ public class YrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         byteBuf.readBytes(payload);
 
         // 有了字节数组之后就可以解压缩，反序列化
-        // todo 解压缩
+        // 1.解压缩
+        Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
+        payload = compressor.decompress(payload);
 
-        // todo 反序列化
+
+        // 2 反序列化
         Serializer serializer = SerializerFactory.getSerializer(yrpcResponse.getSerializeType()).getSerializer();
         Object body = serializer.deserialize(payload, Object.class);
         yrpcResponse.setBody(body);
 
 
-        // todo 解压缩
-
-        // todo 反序列化
-//        try (ByteArrayInputStream bis = new ByteArrayInputStream(payload);
-//             ObjectInputStream ois = new ObjectInputStream(bis)
-//        ) {
-//            RequestPayload requestPayload = (RequestPayload) ois.readObject();
-//            yrpcRequest.setRequestPayload(requestPayload);
-//        } catch (IOException | ClassNotFoundException e){
-//            log.error("请求【{}】反序列化时发生了异常",requestId,e);
-//        }
-//
-//        try(ByteArrayInputStream bis = new ByteArrayInputStream(payload);
-//            ObjectInputStream ois = new ObjectInputStream(bis)
-//        ){
-//            Object body = ois.readObject();
-//            yrpcResponse.setBody(body);
-//        }catch (IOException|ClassNotFoundException e){
-//            log.error("请求{}反序列化时发生了异常",requestId,e);
-//        }
 
         if(log.isDebugEnabled()){
             log.debug("响应【{}】已经在调用端完成解码工作",yrpcResponse.getRequestId());

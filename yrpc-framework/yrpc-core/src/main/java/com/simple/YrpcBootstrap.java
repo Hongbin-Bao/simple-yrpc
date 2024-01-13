@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class YrpcBootstrap {
 
+
     // YrpcBootstrap是个单例，我们希望每个应用程序只有一个实例
     private static final YrpcBootstrap yrpcBootstrap = new YrpcBootstrap();
 
@@ -49,6 +50,8 @@ public class YrpcBootstrap {
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>(128);
 
     public static String SERIALIZE_TYPE = "jdk";
+
+    public static  String COMPRESS_TYPE = "gzip";
 
 
     // 维护一个zookeeper实例
@@ -197,7 +200,18 @@ public class YrpcBootstrap {
             log.debug("我们配置了使用的序列化的方式为【{}】",serializeType);
         }
         return this;
+    }
 
 
+    public YrpcBootstrap compress(String compressType) {
+        COMPRESS_TYPE = compressType;
+        if(log.isDebugEnabled()){
+            log.debug("我们配置了使用的压缩算法为【{}】.",compressType);
+        }
+        return this;
+    }
+
+    public Registry getRegistry() {
+        return registry;
     }
 }

@@ -1,5 +1,7 @@
 package com.simple.channelHandler.Handler;
 
+import com.simple.compress.Compressor;
+import com.simple.compress.CompressorFactory;
 import com.simple.serialize.Serializer;
 import com.simple.serialize.SerializerFactory;
 import com.simple.transport.message.MessageFormatConstant;
@@ -55,7 +57,9 @@ public class YrpcResponseEncoder extends MessageToByteEncoder<YrpcResponse> {
         byte[] body = serializer.serialize(yrpcResponse.getBody());
 
 
-        // todo 压缩
+        // 2 压缩
+        Compressor compressor = CompressorFactory.getCompressor(yrpcResponse.getCompressType()).getCompressor();
+        body = compressor.compress(body);
 
         if(body != null){
             byteBuf.writeBytes(body);

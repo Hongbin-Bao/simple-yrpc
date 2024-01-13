@@ -3,6 +3,7 @@ package com.simple.serialize;
 import com.simple.serialize.impl.HessianSerializer;
 import com.simple.serialize.impl.JdkSerializer;
 import com.simple.serialize.impl.JsonSerializer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Hongbin BAO
  * @Date 2024/1/11 20:19
  */
+@Slf4j
 public class SerializerFactory {
 
     private final static ConcurrentHashMap<String,SerializerWrapper> SERIALIZER_CACHE = new ConcurrentHashMap<>(8);
@@ -34,10 +36,22 @@ public class SerializerFactory {
      * @return SerializerWrapper
      */
     public static SerializerWrapper getSerializer(String serializeType) {
+        SerializerWrapper  serializerWrapper =  SERIALIZER_CACHE.get(serializeType);
+        if(serializerWrapper == null){
+            if(log.isDebugEnabled()){
+                log.error("未找到您配置的【{}】序列化工具,默认选用jdk的序列化方式",serializeType);
+            }
+            return SERIALIZER_CACHE.get("jdk");
+        }
         return SERIALIZER_CACHE.get(serializeType);
     }
 
-    public static SerializerWrapper getSerializer(byte serializeCode) {
+    public static SerializerWrapper getSerializer(Byte serializeCode) {
+        SerializerWrapper serializerWrapper = SERIALIZER_CACHE_CODE.get(serializeCode);
+        if(serializerWrapper == null){
+            log.error("未找到您配置的【{}】序列化工具，默认选用jdk的序列化方式。",serializeCode);
+            return SERIALIZER_CACHE.get("jdk");
+        }
         return SERIALIZER_CACHE_CODE.get(serializeCode);
     }
 }

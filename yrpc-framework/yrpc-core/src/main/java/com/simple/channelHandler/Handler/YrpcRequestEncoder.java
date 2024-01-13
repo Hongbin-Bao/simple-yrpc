@@ -1,6 +1,8 @@
 package com.simple.channelHandler.Handler;
 
 import com.simple.YrpcBootstrap;
+import com.simple.compress.Compressor;
+import com.simple.compress.CompressorFactory;
 import com.simple.serialize.SerializeUtil;
 import com.simple.serialize.Serializer;
 import com.simple.serialize.SerializerFactory;
@@ -72,12 +74,15 @@ public class YrpcRequestEncoder extends MessageToByteEncoder<YrpcRequest> {
         // 1. 根据配置的序列化方式进行序列化
         // 怎么实现序列化 1.工具类 耦合性很高 如果以后我想替换序列化的方式 很难
 
-        Serializer serializer =  SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getSerializer();
+        Serializer serializer =  SerializerFactory.getSerializer(yrpcRequest.getSerializeType()).getSerializer();
         byte[] body = serializer.serialize(yrpcRequest.getRequestPayload());
 
 
 
         // 2. 根据配置的压缩方式进行压缩
+
+        Compressor compressor = CompressorFactory.getCompressor(yrpcRequest.getCompressType()).getCompressor();
+        body = compressor.compress(body);
         if(body != null){
             byteBuf.writeBytes(body);
         }
