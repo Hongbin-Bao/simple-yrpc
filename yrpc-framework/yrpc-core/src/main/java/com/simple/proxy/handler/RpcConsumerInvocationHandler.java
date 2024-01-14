@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -65,6 +66,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 .compressType(CompressorFactory.getCompressor(YrpcBootstrap.COMPRESS_TYPE).getCode())
                 .requestType(RequestType.REQUEST.getId())
                 .serializeType(SerializerFactory.getSerializer(YrpcBootstrap.SERIALIZE_TYPE).getCode())
+                .timeStamp(new Date().getTime())
                 .requestPayload(requestPayload)
                 .build();
 
@@ -113,7 +115,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         // 4、写出报文
         CompletableFuture<Object> completableFuture = new CompletableFuture<>();
         // 将 completableFuture 暴露出去
-        YrpcBootstrap.PENDING_REQUEST.put(1L, completableFuture);
+        YrpcBootstrap.PENDING_REQUEST.put(yrpcRequest.getRequestId(), completableFuture);
 
         // 这里这几 writeAndFlush 写出一个请求，这个请求的实例就会进入pipeline执行出站的一系列操作
         // 我们可以想象得到，第一个出站程序一定是将 yrpcRequest --> 二进制的报文
@@ -197,3 +199,4 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         return channel;
     }
 }
+

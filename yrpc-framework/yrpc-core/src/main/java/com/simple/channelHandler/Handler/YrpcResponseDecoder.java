@@ -81,12 +81,16 @@ public class YrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         // 8、请求id
         long requestId = byteBuf.readLong();
 
+        // 9、时间戳
+        long timeStamp = byteBuf.readLong();
+
         // 我们需要封装
         YrpcResponse yrpcResponse = new YrpcResponse();
         yrpcResponse.setCode(responseCode);
         yrpcResponse.setCompressType(compressType);
         yrpcResponse.setSerializeType(serializeType);
         yrpcResponse.setRequestId(requestId);
+        yrpcResponse.setTimeStamp(timeStamp);
 
         // todo 心跳请求没有负载，此处可以判断并直接返回
 //        if( requestType == RequestType.HEART_BEAT.getId()){
@@ -97,21 +101,21 @@ public class YrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         byte[] payload = new byte[bodyLength];
         byteBuf.readBytes(payload);
 
-        // 有了字节数组之后就可以解压缩，反序列化
-        // 1.解压缩
-        Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
-        payload = compressor.decompress(payload);
+        if(payload.length > 0) {
+            // 有了字节数组之后就可以解压缩，反序列化
+            // 1、解压缩
+            Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
+            payload = compressor.decompress(payload);
 
-
-        // 2 反序列化
-        Serializer serializer = SerializerFactory.getSerializer(yrpcResponse.getSerializeType()).getSerializer();
-        Object body = serializer.deserialize(payload, Object.class);
-        yrpcResponse.setBody(body);
-
-
+            // 2、反序列化
+            Serializer serializer = SerializerFactory
+                    .getSerializer(yrpcResponse.getSerializeType()).getSerializer();
+            Object body = serializer.deserialize(payload, Object.class);
+            yrpcResponse.setBody(body);
+        }
 
         if(log.isDebugEnabled()){
-            log.debug("响应【{}】已经在调用端完成解码工作",yrpcResponse.getRequestId());
+            log.debug("响应【{}】已经在调用端完成解码工作。",yrpcResponse.getRequestId());
         }
 
         return yrpcResponse;

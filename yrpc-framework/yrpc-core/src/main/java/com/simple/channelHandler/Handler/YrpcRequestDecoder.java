@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Random;
 
 /**
  * * 自定义协议编码器
@@ -68,6 +69,9 @@ public class YrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+
+        Thread.sleep(new Random().nextInt(50));
+
         Object decode = super.decode(ctx, in);
         if(decode instanceof ByteBuf byteBuf){
             return decodeFrame(byteBuf);
@@ -110,12 +114,16 @@ public class YrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
         // 8、请求id
         long requestId = byteBuf.readLong();
 
+        // 9、时间戳
+        long timeStamp = byteBuf.readLong();
+
         // 我们需要封装
         YrpcRequest yrpcRequest = new YrpcRequest();
         yrpcRequest.setRequestType(requestType);
         yrpcRequest.setCompressType(compressType);
         yrpcRequest.setSerializeType(serializeType);
         yrpcRequest.setRequestId(requestId);
+        yrpcRequest.setTimeStamp(timeStamp);
 
         // 心跳请求没有负载，此处可以判断并直接返回
         if( requestType == RequestType.HEART_BEAT.getId()){
@@ -127,30 +135,21 @@ public class YrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
         byteBuf.readBytes(payload);
 
         // 有了字节数组之后就可以解压缩，反序列化
-        // todo 解压缩
-        Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
-        payload = compressor.decompress(payload);
+        // 1、解压缩
+        if(payload != null && payload.length != 0) {
+            Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
+            payload = compressor.decompress(payload);
 
-        // 2.反序列化
-        // 1 --> jdk
-        Serializer serializer = SerializerFactory.getSerializer(serializeType).getSerializer();
-        RequestPayload requestPayload = serializer.deserialize(payload, RequestPayload.class);
 
-        yrpcRequest.setRequestPayload(requestPayload);
+            // 2、反序列化
+            Serializer serializer = SerializerFactory.getSerializer(serializeType).getSerializer();
+            RequestPayload requestPayload = serializer.deserialize(payload, RequestPayload.class);
+            yrpcRequest.setRequestPayload(requestPayload);
+        }
 
-//        try (ByteArrayInputStream bis = new ByteArrayInputStream(payload);
-//             ObjectInputStream ois = new ObjectInputStream(bis)
-//        ) {
-//            RequestPayload requestPayload = (RequestPayload) ois.readObject();
-//            yrpcRequest.setRequestPayload(requestPayload);
-//        } catch (IOException | ClassNotFoundException e){
-//            log.error("请求【{}】反序列化时发生了异常",requestId,e);
-//        }
-//
-//
-//        if(log.isDebugEnabled()){
-//            log.debug("请求【{}】已经在服务端完成解码工作",yrpcRequest.getRequestId());
-//        }
+        if(log.isDebugEnabled()){
+            log.debug("请求【{}】已经在服务端完成解码工作。",yrpcRequest.getRequestId());
+        }
 
         return yrpcRequest;
     }

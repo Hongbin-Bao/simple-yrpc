@@ -26,11 +26,12 @@ public class MethodCallHandler extends SimpleChannelInboundHandler<YrpcRequest> 
         RequestPayload requestPayload = yrpcRequest.getRequestPayload();
 
         // 2、根据负载内容进行方法调用
-        Object result = callTargetMethod(requestPayload);
-
-
-        if(log.isDebugEnabled()){
-            log.debug("请求【{}】已经在服务端完成方法调用",yrpcRequest.getRequestId());
+        Object result = null;
+        if(! (yrpcRequest.getRequestType() == RequestType.HEART_BEAT.getId())){
+            result = callTargetMethod(requestPayload);
+            if(log.isDebugEnabled()){
+                log.debug("请求【{}】已经在服务端完成方法调用。",yrpcRequest.getRequestId());
+            }
         }
 
         // 封装响应
