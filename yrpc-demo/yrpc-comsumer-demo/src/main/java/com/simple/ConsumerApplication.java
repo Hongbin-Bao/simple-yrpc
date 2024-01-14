@@ -33,13 +33,25 @@ public class ConsumerApplication {
 
         System.out.println("-----------------------------------");
 
+        System.out.println("++------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         HelloYrpc helloYrpc = reference.get();
-        for (int i = 0; i < 10; i++) {
-            String sayHi = helloYrpc.sayHi("你好yrpc");
-            log.info("sayHi-->{}", sayHi);
+
+        while (true) {
+            try {
+                Thread.sleep(10000);
+                System.out.println("++------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            for (int i = 0; i < 5; i++) {
+                String sayHi = helloYrpc.sayHi("你好yrpc");
+                log.info("sayHi-->{}", sayHi);
+            }
         }
 
 
     }
 }
+
 

@@ -28,7 +28,7 @@ public class ConsistentHashBalancer extends AbstractLoadBalancer {
     /**
      * 一致性hash的具体算法实现
      */
-    private static class ConsistentHashSelector implements Selector {
+    private static class ConsistentHashSelector implements Selector{
 
         // hash环用来存储服务器节点
         private SortedMap<Integer,InetSocketAddress> circle= new TreeMap<>();
@@ -118,12 +118,6 @@ public class ConsistentHashBalancer extends AbstractLoadBalancer {
             return res;
         }
 
-
-        @Override
-        public void reBalance() {
-
-        }
-
         private String toBinary(int i){
             String s = Integer.toBinaryString(i);
             int index = 32 -s.length();
@@ -139,3 +133,4 @@ public class ConsistentHashBalancer extends AbstractLoadBalancer {
 
 
 }
+

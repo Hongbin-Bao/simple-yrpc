@@ -1,6 +1,7 @@
 package com.simple.loadbalancer;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  *
@@ -21,4 +22,10 @@ public interface LoadBalancer {
      */
     InetSocketAddress selectServiceAddress(String serviceName);
 
+    /**
+     * 当感知节点发生了动态上下线，我们需要重新进行负载均衡
+     * @param serviceName 服务的名称
+     */
+    void reLoadBalance(String serviceName, List<InetSocketAddress> addresses);
 }
+

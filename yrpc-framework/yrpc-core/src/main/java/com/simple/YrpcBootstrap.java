@@ -9,6 +9,7 @@ import com.simple.discovery.RegistryConfig;
 import com.simple.loadbalancer.LoadBalancer;
 import com.simple.loadbalancer.imlp.ConsistentHashBalancer;
 import com.simple.loadbalancer.imlp.MinimumResponseTimeLoadBalancer;
+import com.simple.loadbalancer.imlp.RoundRobinLoadBalancer;
 import com.simple.transport.message.YrpcRequest;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -33,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class YrpcBootstrap {
 
 
-    public static final int PORT = 8092;
+    public static final int PORT = 8094;
     // YrpcBootstrap是个单例，我们希望每个应用程序只有一个实例
     private static final YrpcBootstrap yrpcBootstrap = new YrpcBootstrap();
 
@@ -95,7 +96,7 @@ public class YrpcBootstrap {
         // 尝试使用 registryConfig 获取一个注册中心，有点工厂设计模式的意思了
         this.registry = registryConfig.getRegistry();
         // todo 需要修改
-        YrpcBootstrap.LOAD_BALANCER = new MinimumResponseTimeLoadBalancer();
+        YrpcBootstrap.LOAD_BALANCER = new RoundRobinLoadBalancer();
         return this;
     }
 
@@ -228,3 +229,4 @@ public class YrpcBootstrap {
         return registry;
     }
 }
+
