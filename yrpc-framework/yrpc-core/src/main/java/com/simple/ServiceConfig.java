@@ -5,17 +5,14 @@ package com.simple;
  * @Date 2024/1/5 21:25
  */
 public class ServiceConfig<T> {
-
-    private Class<T> interfaceProvider;
+    private Class<?> interfaceProvider;
     private Object ref;
 
-
-
-    public Class<T> getInterface() {
+    public Class<?> getInterface() {
         return interfaceProvider;
     }
 
-    public void setInterface(Class<T> interfaceProvider) {
+    public void setInterface(Class<?> interfaceProvider) {
         this.interfaceProvider = interfaceProvider;
     }
 
