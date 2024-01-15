@@ -30,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 public class Configuration {
 
     // 配置信息-->端口号
-    private int port = 8094;
+    private int port = 8091;
 
     // 配置信息-->应用程序的名字
     private String appName = "default";
