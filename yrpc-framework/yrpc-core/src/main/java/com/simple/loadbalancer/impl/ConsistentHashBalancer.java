@@ -1,4 +1,4 @@
-package com.simple.loadbalancer.imlp;
+package com.simple.loadbalancer.impl;
 
 import com.simple.YrpcBootstrap;
 import com.simple.loadbalancer.AbstractLoadBalancer;

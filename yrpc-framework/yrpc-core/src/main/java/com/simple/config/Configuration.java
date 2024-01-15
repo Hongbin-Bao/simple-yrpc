@@ -3,7 +3,7 @@ package com.simple.config;
 import com.simple.IdGenerator;
 import com.simple.discovery.RegistryConfig;
 import com.simple.loadbalancer.LoadBalancer;
-import com.simple.loadbalancer.imlp.RoundRobinLoadBalancer;
+import com.simple.loadbalancer.impl.RoundRobinLoadBalancer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

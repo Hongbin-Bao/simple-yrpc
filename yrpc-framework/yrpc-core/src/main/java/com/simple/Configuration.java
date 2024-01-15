@@ -4,7 +4,7 @@ import com.simple.compress.Compressor;
 import com.simple.compress.impl.GzipCompressor;
 import com.simple.discovery.RegistryConfig;
 import com.simple.loadbalancer.LoadBalancer;
-import com.simple.loadbalancer.imlp.RoundRobinLoadBalancer;
+import com.simple.loadbalancer.impl.RoundRobinLoadBalancer;
 import com.simple.serialize.Serializer;
 import com.simple.serialize.impl.JdkSerializer;
 import lombok.Data;

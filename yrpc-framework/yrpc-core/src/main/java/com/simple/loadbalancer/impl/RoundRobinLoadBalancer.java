@@ -1,4 +1,4 @@
-package com.simple.loadbalancer.imlp;
+package com.simple.loadbalancer.impl;
 
 import com.simple.exceptions.LoadBalancerException;
 import com.simple.loadbalancer.AbstractLoadBalancer;
