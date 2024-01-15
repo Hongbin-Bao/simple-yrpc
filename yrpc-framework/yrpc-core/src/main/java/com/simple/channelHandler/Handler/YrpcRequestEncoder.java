@@ -76,10 +76,10 @@ public class YrpcRequestEncoder extends MessageToByteEncoder<YrpcRequest> {
         // 怎么实现序列化 1、工具类 耦合性很高 如果以后我想替换序列化的方式，很难
         byte[] body = null;
         if (yrpcRequest.getRequestPayload() != null) {
-            Serializer serializer = SerializerFactory.getSerializer(yrpcRequest.getSerializeType()).getSerializer();
+            Serializer serializer = SerializerFactory.getSerializer(yrpcRequest.getSerializeType()).getImpl();
             body = serializer.serialize(yrpcRequest.getRequestPayload());
             // 2、根据配置的压缩方式进行压缩
-            Compressor compressor = CompressorFactory.getCompressor(yrpcRequest.getCompressType()).getCompressor();
+            Compressor compressor = CompressorFactory.getCompressor(yrpcRequest.getCompressType()).getImpl();
             body = compressor.compress(body);
         }
 

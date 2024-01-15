@@ -20,7 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class RequestPayload implements Serializable {
 
-    // 1、接口的名字 -- com.ydlclass.HelloYrpc
+    // 1、接口的名字 -- com.simple.HelloYrpc
     private String interfaceName;
 
     // 2、方法的名字 --sayHi

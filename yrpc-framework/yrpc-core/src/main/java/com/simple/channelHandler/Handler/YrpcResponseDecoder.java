@@ -104,12 +104,12 @@ public class YrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         if(payload.length > 0) {
             // 有了字节数组之后就可以解压缩，反序列化
             // 1、解压缩
-            Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
+            Compressor compressor = CompressorFactory.getCompressor(compressType).getImpl();
             payload = compressor.decompress(payload);
 
             // 2、反序列化
             Serializer serializer = SerializerFactory
-                    .getSerializer(yrpcResponse.getSerializeType()).getSerializer();
+                    .getSerializer(yrpcResponse.getSerializeType()).getImpl();
             Object body = serializer.deserialize(payload, Object.class);
             yrpcResponse.setBody(body);
         }

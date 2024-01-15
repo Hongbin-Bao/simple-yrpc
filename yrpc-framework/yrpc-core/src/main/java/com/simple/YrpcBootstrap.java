@@ -331,7 +331,7 @@ public class YrpcBootstrap {
 
     private String getClassNameByAbsolutePath(String absolutePath,String basePath) {
         // E:\project\ydlclass-yrpc\yrpc-framework\yrpc-core\target\classes\com\ydlclass\serialize\Serializer.class
-        // com\ydlclass\serialize\Serializer.class --> com.ydlclass.serialize.Serializer
+        // com\ydlclass\serialize\Serializer.class --> com.simple.serialize.Serializer
 //        String fileName = absolutePath
 //                .substring(absolutePath.indexOf(basePath.replaceAll("/",".")));
 //

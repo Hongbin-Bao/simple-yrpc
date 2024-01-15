@@ -14,6 +14,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ *
+ * 一致性hash的负载均衡策略
  * @author Hongbin BAO
  * @Date 2024/1/13 19:18
  */
@@ -133,4 +135,5 @@ public class ConsistentHashBalancer extends AbstractLoadBalancer {
 
 
 }
+
 

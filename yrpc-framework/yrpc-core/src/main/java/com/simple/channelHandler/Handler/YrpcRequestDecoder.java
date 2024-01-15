@@ -137,12 +137,12 @@ public class YrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
         // 有了字节数组之后就可以解压缩，反序列化
         // 1、解压缩
         if(payload != null && payload.length != 0) {
-            Compressor compressor = CompressorFactory.getCompressor(compressType).getCompressor();
+            Compressor compressor = CompressorFactory.getCompressor(compressType).getImpl();
             payload = compressor.decompress(payload);
 
 
             // 2、反序列化
-            Serializer serializer = SerializerFactory.getSerializer(serializeType).getSerializer();
+            Serializer serializer = SerializerFactory.getSerializer(serializeType).getImpl();
             RequestPayload requestPayload = serializer.deserialize(payload, RequestPayload.class);
             yrpcRequest.setRequestPayload(requestPayload);
         }

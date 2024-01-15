@@ -57,13 +57,13 @@ public class YrpcResponseEncoder extends MessageToByteEncoder<YrpcResponse> {
         byte[] body = null;
         if(yrpcResponse.getBody() != null) {
             Serializer serializer = SerializerFactory
-                    .getSerializer(yrpcResponse.getSerializeType()).getSerializer();
+                    .getSerializer(yrpcResponse.getSerializeType()).getImpl();
             body = serializer.serialize(yrpcResponse.getBody());
 
             // 2、压缩
             Compressor compressor = CompressorFactory.getCompressor(
                     yrpcResponse.getCompressType()
-            ).getCompressor();
+            ).getImpl();
             body = compressor.compress(body);
         }
 
